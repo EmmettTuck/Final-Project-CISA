@@ -11,10 +11,15 @@ This project demonstrates the design and configuration of an enterprise-grade ne
 ### What's Covered
 
 | Area | Details |
+
 | **Network Topology** | Multi-zone design: LAN, DMZ, WAN |
+
 | **Firewall Policies** | Zone-based rules |
+
 | **VPN** | Site-to-site VPN |
+
 | **Monitoring** | Traffic logs, event logs, threat reports |
+
 | **Logging ** | Logging with Splunk |
 
 
