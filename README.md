@@ -27,18 +27,31 @@ This project demonstrates the design and configuration of an enterprise-grade ne
 
 /
 ├── assets/
-│   ├── topology.png        ← Network topology diagram
+
+│   ├── topology.png ← Network topology diagram
+
 │   └── screenshots/        ← FortiGate GUI & CLI screenshots
+
 │       ├── dashboard.png
+
 │       ├── policies.png
+
 │       ├── vpn-status.png
+
 │       ├── traffic-logs.png
+
 │       ├── cli-config.png
+
 │       └── security-profiles.png
+
 ├── configs/
+
 │   ├── FG1.conf
+
 │   ├── FG2.conf
+
 |________________________
+
 
 
 ## Author
