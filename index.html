@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enterprise Network Security with FortiGate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue-900: #042C53;
+      --blue-800: #0C447C;
+      --blue-700: #185FA5;
+      --blue-500: #378ADD;
+      --blue-300: #85B7EB;
+      --blue-100: #B5D4F4;
+      --blue-50:  #E6F1FB;
+      --gray-900: #1a1f2e;
+      --gray-800: #242938;
+      --gray-700: #2e3547;
+      --gray-400: #6b7a99;
+      --gray-200: #c8d0e0;
+      --gray-100: #e8ecf4;
+      --white: #ffffff;
+      --accent: #378ADD;
+      --accent-bright: #5BA3EF;
+      --text-primary: #0C1929;
+      --text-secondary: #3a5070;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--blue-900);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(4, 44, 83, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(181, 212, 244, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 60px;
+    }
+    .nav-logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--blue-300);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2rem;
+    }
+    nav ul a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--blue-100);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+    }
+    nav ul a:hover { color: var(--white); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      padding: 6rem 2.5rem 5rem;
+      max-width: 900px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .hero-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(55,138,221,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(55,138,221,0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 75%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(55,138,221,0.15);
+      border: 1px solid rgba(55,138,221,0.35);
+      border-radius: 999px;
+      padding: 5px 14px 5px 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--blue-300);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 1.75rem;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent-bright);
+      box-shadow: 0 0 8px var(--accent-bright);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 span { color: var(--blue-300); }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--blue-100);
+      line-height: 1.7;
+      max-width: 620px;
+      margin-bottom: 2.5rem;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.18s ease;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--white);
+      border: 1px solid transparent;
+    }
+    .btn-primary:hover { background: var(--accent-bright); transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent;
+      color: var(--blue-100);
+      border: 1px solid rgba(181,212,244,0.3);
+    }
+    .btn-outline:hover { background: rgba(181,212,244,0.08); border-color: var(--blue-300); }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1px;
+      background: rgba(181,212,244,0.1);
+      border-top: 1px solid rgba(181,212,244,0.1);
+      border-bottom: 1px solid rgba(181,212,244,0.1);
+    }
+    .stat-item {
+      padding: 1.5rem 2rem;
+      background: rgba(4,44,83,0.6);
+      text-align: center;
+    }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--blue-300);
+    }
+    .stat-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--blue-100);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 4rem 2.5rem;
+    }
+    .section-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--blue-500);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .section-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2.1rem);
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 2.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── OVERVIEW CARDS ── */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .overview-card {
+      background: rgba(12,68,124,0.35);
+      border: 1px solid rgba(55,138,221,0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .overview-card:hover {
+      border-color: rgba(55,138,221,0.5);
+      background: rgba(12,68,124,0.5);
+    }
+    .card-icon {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      background: rgba(55,138,221,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 18px;
+    }
+    .overview-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+    .overview-card p {
+      font-size: 13px;
+      color: var(--blue-100);
+      line-height: 1.6;
+    }
+
+    /* ── TOPOLOGY SECTION ── */
+    .topology-wrapper {
+      background: rgba(4,44,83,0.7);
+      border: 1px solid rgba(55,138,221,0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      overflow-x: auto;
+    }
+    .topology-placeholder {
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 2px dashed rgba(55,138,221,0.25);
+      border-radius: 10px;
+      gap: 1rem;
+    }
+    .topology-placeholder svg { opacity: 0.5; }
+    .topology-placeholder p {
+      color: var(--blue-300);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── CONFIG FILES ── */
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .config-card {
+      background: rgba(2,25,50,0.8);
+      border: 1px solid rgba(55,138,221,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .config-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(55,138,221,0.12);
+      background: rgba(12,68,124,0.3);
+    }
+    .config-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--blue-300);
+    }
+    .config-badge {
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(55,138,221,0.15);
+      color: var(--blue-300);
+      border: 1px solid rgba(55,138,221,0.25);
+    }
+    .config-body {
+      padding: 1rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      color: var(--blue-100);
+      line-height: 1.7;
+    }
+    .config-body .kw { color: #85B7EB; }
+    .config-body .val { color: #9FE1CB; }
+    .config-body .cmt { color: var(--gray-400); font-style: italic; }
+
+    /* ── SCREENSHOTS ── */
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .screenshot-card {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(55,138,221,0.2);
+      background: rgba(12,68,124,0.25);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .screenshot-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(55,138,221,0.5);
+    }
+    .screenshot-img-placeholder {
+      width: 100%;
+      aspect-ratio: 16/10;
+      background: rgba(4,44,83,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      border-bottom: 1px solid rgba(55,138,221,0.12);
+    }
+    .screenshot-img-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .screenshot-caption {
+      padding: 0.75rem 1rem;
+      font-size: 12px;
+      color: var(--blue-100);
+    }
+    .screenshot-caption strong {
+      display: block;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--white);
+      margin-bottom: 3px;
+    }
+
+    /* ── STEPS ── */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .step-row {
+      display: flex;
+      gap: 1.5rem;
+      position: relative;
+    }
+    .step-row:not(:last-child) .step-line {
+      position: absolute;
+      left: 19px;
+      top: 38px;
+      bottom: -12px;
+      width: 2px;
+      background: rgba(55,138,221,0.2);
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(55,138,221,0.15);
+      border: 1.5px solid rgba(55,138,221,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--blue-300);
+      margin-top: 4px;
+    }
+    .step-content {
+      padding-bottom: 2rem;
+    }
+    .step-content h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 0.35rem;
+    }
+    .step-content p {
+      font-size: 14px;
+      color: var(--blue-100);
+      line-height: 1.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid rgba(181,212,244,0.1);
+      padding: 2rem 2.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    footer p {
+      font-size: 12px;
+      color: var(--blue-300);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a {
+      font-size: 12px;
+      color: var(--blue-300);
+      text-decoration: none;
+      font-family: 'IBM Plex Mono', monospace;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--white); }
+
+    @media (max-width: 600px) {
+      nav ul { display: none; }
+      .hero { padding: 4rem 1.25rem 3rem; }
+      .section { padding: 3rem 1.25rem; }
+      footer { padding: 1.5rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">&#x2022; FortiGate Lab</span>
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#topology">Topology</a></li>
+    <li><a href="#configs">Configs</a></li>
+    <li><a href="#screenshots">Screenshots</a></li>
+    <li><a href="#walkthrough">Walkthrough</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-bg" aria-hidden="true"></div>
+  <div class="hero-badge">Network Security Final Project</div>
+  <h1>Enterprise Network Security<br/><span>with FortiGate</span></h1>
+  <p class="hero-sub">
+    A complete implementation and analysis of enterprise-grade network security using
+    FortiGate firewalls — covering topology design, policy configuration, VPN tunnels,
+    IPS/IDS rules, and traffic monitoring.
+  </p>
+  <div class="hero-actions">
+    <a href="#configs" class="btn btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      View Config Files
+    </a>
+    <a href="#screenshots" class="btn btn-outline">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      Screenshots
+    </a>
+    <a href="https://github.com/YOUR-USERNAME/YOUR-REPO" target="_blank" class="btn btn-outline">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub Repo
+    </a>
+  </div>
+</section>
+
+<!-- STATS STRIP -->
+<div class="stats-strip">
+  <div class="stat-item">
+    <div class="stat-num">3</div>
+    <div class="stat-label">Network Zones</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">12+</div>
+    <div class="stat-label">Firewall Policies</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">2</div>
+    <div class="stat-label">VPN Tunnels</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">FortiOS CLI</div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<section class="section" id="overview">
+  <div class="section-title">Project Overview</div>
+  <div class="section-heading">What was built &amp; configured</div>
+  <div class="overview-grid">
+    <div class="overview-card">
+      <div class="card-icon">🔥</div>
+      <h3>FortiGate Firewall</h3>
+      <p>Configured FortiOS policies, NAT rules, and interface zones for segmented traffic control.</p>
+    </div>
+    <div class="overview-card">
+      <div class="card-icon">🌐</div>
+      <h3>Network Topology</h3>
+      <p>Designed a multi-zone network including LAN, DMZ, and WAN segments with routing protocols.</p>
+    </div>
+    <div class="overview-card">
+      <div class="card-icon">🔒</div>
+      <h3>VPN Configuration</h3>
+      <p>Site-to-site IPsec VPN tunnels with IKEv2, pre-shared keys, and phase 1/2 selectors.</p>
+    </div>
+    <div class="overview-card">
+      <div class="card-icon">🛡️</div>
+      <h3>IPS / Security Profiles</h3>
+      <p>Applied intrusion prevention, antivirus, web filtering, and application control profiles.</p>
+    </div>
+    <div class="overview-card">
+      <div class="card-icon">📊</div>
+      <h3>Monitoring &amp; Logging</h3>
+      <p>Enabled FortiAnalyzer logging, traffic dashboards, and threat detection reports.</p>
+    </div>
+    <div class="overview-card">
+      <div class="card-icon">⚙️</div>
+      <h3>CLI Automation</h3>
+      <p>All configurations documented with full CLI commands for reproducibility and review.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TOPOLOGY -->
+<section class="section" id="topology">
+  <div class="section-title">Network Design</div>
+  <div class="section-heading">Topology &amp; architecture</div>
+  <div class="topology-wrapper">
+    <!-- REPLACE: Drop your topology diagram image here -->
+    <div class="topology-placeholder">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <p>[ Replace with your network topology diagram image ]<br/>
+      &lt;img src="assets/topology.png" alt="Network topology diagram" style="max-width:100%; border-radius:8px;" /&gt;</p>
+    </div>
+  </div>
+  <p style="margin-top:1rem; font-size:13px; color:var(--blue-300); font-family:'IBM Plex Mono',monospace;">
+    ↳ Place your diagram image in <code style="color:var(--blue-100);">assets/topology.png</code> and update the img tag above.
+  </p>
+</section>
+
+<!-- CONFIG FILES -->
+<section class="section" id="configs">
+  <div class="section-title">Configuration</div>
+  <div class="section-heading">FortiGate config files</div>
+  <div class="config-grid">
+    <div class="config-card">
+      <div class="config-header">
+        <span class="config-title">firewall-policy.conf</span>
+        <span class="config-badge">.conf</span>
+      </div>
+      <div class="config-body">
+        <span class="cmt"># Allow LAN to WAN (HTTP/HTTPS)</span><br/>
+        <span class="kw">config</span> firewall policy<br/>
+        &nbsp;&nbsp;<span class="kw">edit</span> <span class="val">1</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">set</span> name <span class="val">"LAN_to_WAN"</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">set</span> srcintf <span class="val">"internal"</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">set</span> dstintf <span class="val">"wan1"</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">set</span> action <span class="val">accept</span><br/>
+        &nbsp;&nbsp;<span class="kw">next</span><br/>
+        <span class="kw">end</span>
+      </div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-header">
+        <span class="config-title">vpn-ipsec.conf</span>
+        <span class="config-badge">.conf</span>
+      </div>
+      <div class="config-body">
+        <span class="cmt"># IPsec Phase 1</span><br/>
+        <span class="kw">config</span> vpn ipsec phase1-interface<br/>
+        &nbsp;&nbsp;<span class="kw">edit</span> <span class="val">"SiteB_VPN"</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">set</span> interface <span class="val">"wan1"</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">set</span> ike-version <span class="val">2</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">set</span> peertype <span class="val">any</span><br/>
+        &nbsp;&nbsp;<span class="kw">next</span><br/>
+        <span class="kw">end</span>
+      </div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-header">
+        <span class="config-title">interfaces.conf</span>
+        <span class="config-badge">.conf</span>
+      </div>
+      <div class="config-body">
+        <span class="cmt"># Internal LAN interface</span><br/>
+        <span class="kw">config</span> system interface<br/>
+        &nbsp;&nbsp;<span class="kw">edit</span> <span class="val">"internal"</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">set</span> ip <span class="val">192.168.1.1 255.255.255.0</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">set</span> allowaccess <span class="val">ping https ssh</span><br/>
+        &nbsp;&nbsp;<span class="kw">next</span><br/>
+        <span class="kw">end</span>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:13px; color:var(--blue-300); font-family:'IBM Plex Mono',monospace;">
+    ↳ Replace the snippets above with your actual config content, or link to files in your repo's <code style="color:var(--blue-100);">configs/</code> folder.
+  </p>
+</section>
+
+<!-- SCREENSHOTS -->
+<section class="section" id="screenshots">
+  <div class="section-title">Documentation</div>
+  <div class="section-heading">Screenshots &amp; CLI output</div>
+  <div class="screenshots-grid">
+
+    <div class="screenshot-card">
+      <div class="screenshot-img-placeholder">
+        <!-- REPLACE: <img src="assets/screenshots/dashboard.png" alt="FortiGate dashboard" /> -->
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="1.5" opacity="0.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span style="font-size:11px; color:#85B7EB; font-family:'IBM Plex Mono',monospace;">screenshot here</span>
+      </div>
+      <div class="screenshot-caption">
+        <strong>FortiGate Dashboard</strong>
+        System status overview and interface summary
+      </div>
+    </div>
+
+    <div class="screenshot-card">
+      <div class="screenshot-img-placeholder">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="1.5" opacity="0.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span style="font-size:11px; color:#85B7EB; font-family:'IBM Plex Mono',monospace;">screenshot here</span>
+      </div>
+      <div class="screenshot-caption">
+        <strong>Firewall Policy Table</strong>
+        Configured rules and policy routing
+      </div>
+    </div>
+
+    <div class="screenshot-card">
+      <div class="screenshot-img-placeholder">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="1.5" opacity="0.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span style="font-size:11px; color:#85B7EB; font-family:'IBM Plex Mono',monospace;">screenshot here</span>
+      </div>
+      <div class="screenshot-caption">
+        <strong>VPN Tunnel Status</strong>
+        Active IPsec tunnels and phase negotiation
+      </div>
+    </div>
+
+    <div class="screenshot-card">
+      <div class="screenshot-img-placeholder">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="1.5" opacity="0.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span style="font-size:11px; color:#85B7EB; font-family:'IBM Plex Mono',monospace;">screenshot here</span>
+      </div>
+      <div class="screenshot-caption">
+        <strong>Traffic Logs</strong>
+        Live traffic monitoring and threat detection
+      </div>
+    </div>
+
+    <div class="screenshot-card">
+      <div class="screenshot-img-placeholder">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="1.5" opacity="0.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span style="font-size:11px; color:#85B7EB; font-family:'IBM Plex Mono',monospace;">screenshot here</span>
+      </div>
+      <div class="screenshot-caption">
+        <strong>CLI Configuration</strong>
+        Terminal output during interface/policy setup
+      </div>
+    </div>
+
+    <div class="screenshot-card">
+      <div class="screenshot-img-placeholder">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="1.5" opacity="0.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span style="font-size:11px; color:#85B7EB; font-family:'IBM Plex Mono',monospace;">screenshot here</span>
+      </div>
+      <div class="screenshot-caption">
+        <strong>Security Profiles</strong>
+        IPS, antivirus, and web filter policy summary
+      </div>
+    </div>
+
+  </div>
+  <p style="margin-top:1rem; font-size:13px; color:var(--blue-300); font-family:'IBM Plex Mono',monospace;">
+    ↳ Replace each placeholder with: <code style="color:var(--blue-100);">&lt;img src="assets/screenshots/your-file.png" alt="description" /&gt;</code>
+  </p>
+</section>
+
+<!-- WALKTHROUGH -->
+<section class="section" id="walkthrough">
+  <div class="section-title">Step-by-Step</div>
+  <div class="section-heading">Configuration walkthrough</div>
+  <div class="steps-list">
+
+    <div class="step-row">
+      <div class="step-line"></div>
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <h3>Initial FortiGate setup &amp; interface configuration</h3>
+        <p>Connected to FortiGate via console cable. Set management IP, configured WAN and LAN interfaces with appropriate subnets, and verified connectivity.</p>
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-line"></div>
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <h3>Firewall policy &amp; NAT rules</h3>
+        <p>Created zone-based policies for LAN→WAN, DMZ→WAN, and inter-zone traffic. Configured port address translation (PAT) on WAN interface for outbound traffic.</p>
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-line"></div>
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <h3>IPsec VPN tunnel configuration</h3>
+        <p>Configured site-to-site IKEv2 tunnel with phase 1 (encryption AES-256, hash SHA-256) and phase 2 selectors. Verified tunnel establishment via diagnose CLI.</p>
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-line"></div>
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <h3>Security profiles &amp; IPS deployment</h3>
+        <p>Applied IPS signature packages, enabled web filtering by category, attached antivirus profile, and bound all profiles to relevant firewall policies.</p>
+      </div>
+    </div>
+
+    <div class="step-row">
+      <div class="step-num">05</div>
+      <div class="step-content">
+        <h3>Testing, validation &amp; traffic analysis</h3>
+        <p>Ran connectivity tests across all zones, triggered test IPS events to validate blocking, and captured FortiGate logs confirming expected policy behavior.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 · Enterprise Network Security with FortiGate · Final Project</p>
+  <div class="footer-links">
+    <a href="https://github.com/YOUR-USERNAME/YOUR-REPO" target="_blank">GitHub</a>
+    <a href="configs/">Configs</a>
+    <a href="assets/screenshots/">Screenshots</a>
+  </div>
+</footer>
+
+</body>
+</html>
