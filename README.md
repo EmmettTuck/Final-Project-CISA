@@ -10,48 +10,41 @@ This project demonstrates the design and configuration of an enterprise-grade ne
 
 ### What's Covered
 
-| Area | Details |
+ Network Topology - Multi-zone design: LAN, DMZ, WAN 
 
-| **Network Topology** | Multi-zone design: LAN, DMZ, WAN |
+ Firewall Policies - Zone-based rules 
 
-| **Firewall Policies** | Zone-based rules |
+ VPN - Site-to-site VPN 
 
-| **VPN** | Site-to-site VPN |
+ Monitoring - Traffic logs, event logs, threat reports 
 
-| **Monitoring** | Traffic logs, event logs, threat reports |
-
-| **Logging ** | Logging with Splunk |
+Logging  - Logging with Splunk 
 
 
 ## Repository Structure
 
-/
-├── assets/
+/Assets
+   
+   Topology.png
+   
+  /Assets/Screenshots
+  
+	    ├── dashboard.png
 
-│   ├── topology.png ← Network topology diagram
+        ├── policies.png
 
-│   └── screenshots/        ← FortiGate GUI & CLI screenshots
+        ├── vpn-status.png
 
-│       ├── dashboard.png
+        ├── traffic-logs.png
 
-│       ├── policies.png
+        ├── cli-config.png
 
-│       ├── vpn-status.png
+        └── security-profiles.png
+  /Assets/Configs
+	
+      ├── FG1.conf
 
-│       ├── traffic-logs.png
-
-│       ├── cli-config.png
-
-│       └── security-profiles.png
-
-├── configs/
-
-│   ├── FG1.conf
-
-│   ├── FG2.conf
-
-|________________________
-
+      ├── FG2.conf
 
 
 ## Author
