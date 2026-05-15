@@ -2,7 +2,8 @@ Enterprise Network Security with FortiGate
 
 Course Final Project — A complete enterprise network security implementation using FortiGate firewalls, covering topology design, policy configuration, VPN tunnels, and traffic monitoring.
 
-
+## Network Topology
+![Network Topology](./assets/Topology%20Picture.png)
 
 ## Project Overview
 
