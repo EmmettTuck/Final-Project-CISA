@@ -20,7 +20,18 @@ This project demonstrates the design and configuration of an enterprise-grade ne
 
 Logging  - Logging with Splunk 
 
+Attacks - Using Kali Machine to Test Logging
 
+
+ ## Security Validation & Attack SimulationTo test the network's defenses and logging capabilities, 
+ 
+ I conducted two simulated attacks from a Kali Linux machine: 
+
+Reconnaissance (Nmap): Performed a port scan on the internal network to identify open services. The resulting traffic was logged by the firewalls and visualized in the Splunk dashboard. 
+
+Brute Force (SSH/RDP): Executed a credential-stuffing attack against the internal servers. Splunk successfully flagged multiple failed login attempts, providing proof of detection.  
+
+Evidence of these attacks and their detection can be found in the /screenshots folder.
 ## Repository Structure
 
 /Assets
